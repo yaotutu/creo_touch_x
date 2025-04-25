@@ -1,4 +1,4 @@
-name: test
+name: build-linux-arm64
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ jobs:
     # If you want to run the same action on x86 and ARM, you can use a matrix strategy
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm]
+        os: [ubuntu-24.04-arm]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
@@ -23,6 +23,8 @@ jobs:
           channel: master
           flutter-version: 3.29.3
       - run: flutter --version
+
+      
       - name: Install dependencies from Apt
         run: |
           sudo apt-get update -y && sudo apt-get upgrade -y;
@@ -30,3 +32,8 @@ jobs:
       - name: Install Flutter
         run: flutter doctor
       
+      - name: Get dependencies
+        run: flutter pub get
+      
+      - name: Build Flutter project
+        run: flutter build linux --verbose --release
