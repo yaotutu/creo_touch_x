@@ -37,3 +37,9 @@ jobs:
       
       - name: Build Flutter project
         run: flutter build linux --verbose --release
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: creo_touch_x-linux-arm64
+          path: ${{ github.workspace }}/build/linux/arm64/release/bundle
