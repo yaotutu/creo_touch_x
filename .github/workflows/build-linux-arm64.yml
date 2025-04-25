@@ -11,7 +11,7 @@ jobs:
     # If you want to run the same action on x86 and ARM, you can use a matrix strategy
     strategy:
       matrix:
-        os: [ubuntu-24.04-arm]
+        os: [ubuntu-22.04-arm]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
@@ -20,8 +20,8 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: master
-          flutter-version: 3.29.3
+          channel: stable
+          flutter-version-file: pubspec.yaml 
       - run: flutter --version
 
       
