@@ -14,11 +14,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # 设置 Flutter 环境
+    # 设置 Flutter 环境，指定 Flutter 版本
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: 'stable'
+        flutter-version: '3.7.0'  # 指定明确的 Flutter 版本
 
     # 安装 zip 工具
     - name: Install zip
