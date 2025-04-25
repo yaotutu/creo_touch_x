@@ -1,44 +1,54 @@
-name: Build Flutter Linux ARM64 on GitHub Actions
+name: Build and deploy Flutter app for Linux arm64
 
 on:
   push:
-    branches: [main]  # 可自定义分支
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
-  build-linux-arm64:
-    name: Build on ARM64
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    # 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Run on ARM64
-        uses: uraimo/run-on-arch-action@v2
-        with:
-          arch: aarch64
-          distro: ubuntu22.04
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
+    # 设置 Flutter 环境
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: 'stable'
 
-          install: |
-            apt update
-            apt install -y clang cmake ninja-build pkg-config libgtk-3-dev curl git unzip xz-utils
-            git clone https://github.com/flutter/flutter.git -b stable /flutter
-            echo 'export PATH=/flutter/bin:$PATH' >> ~/.bashrc
+    # 安装 zip 工具
+    - name: Install zip
+      run: sudo apt-get install -y zip
 
-          run: |
-            export PATH=/flutter/bin:$PATH
-            flutter doctor -v
-            flutter config --enable-linux-desktop
-            flutter pub get
-            flutter build linux
+    # 安装依赖包
+    - name: Install dependencies
+      run: flutter pub get
 
-            cd build/linux/arm64/release
-            zip -r creo_touch_x-linux-arm64.zip bundle
+    # 构建 Linux arm64 版本的 Flutter 应用
+    - name: Build Flutter app for Linux arm64
+      run: flutter build linux --release --target-platform=linux-arm64
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: creo_touch_x-linux-arm64
-          path: build/linux/arm64/release/creo_touch_x-linux-arm64.zip
+    # 在 ARM 架构上运行构建命令
+    - name: Run on ARM architecture
+      uses: uraimo/run-on-arch-action@v2
+      with:
+        arch: arm64
+        run: |
+          echo "Running on ARM architecture"
+          flutter build linux --release --target-platform=linux-arm64
+
+    # 打包构建结果（zip 文件）
+    - name: Package build output
+      run: zip -r build_output.zip build/linux/arm64/release/bundle
+
+    # 上传构建结果到 GitHub Release（可选）
+    - name: Upload build output to GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: build_output.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
